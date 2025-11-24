@@ -1,18 +1,54 @@
 import { JSX } from "react/jsx-runtime";
 import { MainPage } from "../../pages/main-page/main-page";
 import { ReactElement } from 'react';
+import { AppRoute } from "../../const";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LoginPage } from "../../pages/login-page/login-page";
+import { FavoritesPage } from "../../pages/favorites-page/favorites-page";
+import { OfferPage } from "../../pages/offer-page/offer-page";
+import { NotFoundPage } from "../../pages/not-found-page/not-found-page";
+import { AuthorizationStatus } from "../../const";
+import { PrivateRoute } from "../private-route/private-route";
+import { FullOffer, OffersList } from "../../types/offer";
 
 type AppMainPageProps = {
-  rentalOffersCount: number;
+    rentalOffersCount: number;
+    offersList: OffersList[];
+    offers: FullOffer[];
 }
 
-function App({rentalOffersCount}: AppMainPageProps): JSX.Element {
+function App({rentalOffersCount, offers, offersList,}: AppMainPageProps): JSX.Element {
   return (
-    <MainPage rentalOffersCount={rentalOffersCount} />
+    <BrowserRouter>
+    <Routes>
+      <Route
+      path = {AppRoute.Main}
+      element = {<MainPage rentalOffersCount={rentalOffersCount} offersList={offersList}/>}/>
+      <Route
+      path = {AppRoute.Login}
+      element = {<LoginPage />}/>
+
+<Route
+  path={AppRoute.Favorites}
+  element={
+    <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}> 
+      <FavoritesPage offersList={offersList}/>
+    </PrivateRoute>
+  }
+/>
+      
+      <Route path={`${AppRoute.Offer}/:id`} element={<OfferPage offers={offers}/>}  />
+      <Route
+      path = "*"
+      element = {<NotFoundPage />}/>
+    </Routes>
+    </BrowserRouter>
   );
 }
 
 export default App;
+
+
 
 /*import { FavoritesPage } from "../../pages/favorites-page/favorites-page"; //рендер избранного
 

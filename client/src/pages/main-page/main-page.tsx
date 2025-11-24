@@ -1,30 +1,34 @@
 import { JSX } from "react/jsx-runtime";
 import { CitiesCard } from "../../components/cities-card/cities-card";
+import { Logo } from "../../components/logo/logo";
+import { CitiesCardList } from "../../components/cities-card-list/cities-card-list";
+import { OffersList } from "../../types/offer";
+import { AppRoute } from "../../const";
+import { Link } from "react-router-dom";
 
 type MainPageProps = {
-  rentalOffersCount: number;
+    rentalOffersCount: number;
+    offersList: OffersList[];
 }
 
-function MainPage({rentalOffersCount}: MainPageProps): JSX.Element {
+function MainPage({rentalOffersCount, offersList}: MainPageProps): JSX.Element {
   return (
     <div className="page page--gray page--main">
       <header className="header">
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link header__logo-link--active">
-                <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81" height="41" />
-              </a>
+              <Logo />
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
+                  <Link to={AppRoute.Favorites} className="header__nav-link header__nav-link--profile">
                     <div className="header__avatar-wrapper user__avatar-wrapper">
                     </div>
                     <span className="header__user-name user__name">Myemail@gmail.com</span>
                     <span className="header__favorite-count">3</span>
-                  </a>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">
@@ -96,15 +100,7 @@ function MainPage({rentalOffersCount}: MainPageProps): JSX.Element {
                 </ul>
               </form>
               <div className="cities__places-list places__list tabs__content">
-                <CitiesCard/>
-
-                <CitiesCard/>
-
-                <CitiesCard/>
-
-                <CitiesCard/>
-
-                <CitiesCard/>
+                <CitiesCardList offersList={offersList}/>
               </div>
             </section>
             <div className="cities__right-section">

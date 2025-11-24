@@ -1,24 +1,22 @@
-import { OfferInsideItem } from "../offer-inside-item/offer-inside-item";
+import { JSX } from "react";
 
-function OfferInside() {
-  return ( 
+type OfferInsideProps = {
+  names: string[];
+}
 
-<div className="offer__inside">
-                <h2 className="offer__inside-title">What&apos;s inside</h2>
-                <ul className="offer__inside-list">
-                    <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-            <OfferInsideItem />
-                </ul>
-              </div>
-  )}
+function OfferInside({ names }: OfferInsideProps): JSX.Element {
+  return (
+    <div className="offer__inside">
+      <h2 className="offer__inside-title">What&apos;s inside</h2>
+      <ul className="offer__inside-list">
+        {names.map((item) => (
+          <li key={item} className="offer__inside-item">
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export { OfferInside };
