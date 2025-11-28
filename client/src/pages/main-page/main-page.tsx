@@ -5,13 +5,29 @@ import { CitiesCardList } from "../../components/cities-card-list/cities-card-li
 import { OffersList } from "../../types/offer";
 import { AppRoute } from "../../const";
 import { Link } from "react-router-dom";
+import Map from "../../components/map/map"; 
 
 type MainPageProps = {
     rentalOffersCount: number;
     offersList: OffersList[];
+    onListItemHover: (offerId: string) => void; 
+    selectedOffer: OffersList | null | undefined;
+    
 }
 
-function MainPage({rentalOffersCount, offersList}: MainPageProps): JSX.Element {
+function MainPage({rentalOffersCount, offersList, onListItemHover, selectedOffer}: MainPageProps): JSX.Element {
+
+  const amsterdamOffers = offersList.filter((offer) => offer.city.name === 'Amsterdam');
+
+  const amsterdamCity = {
+    name: 'Amsterdam',
+    location: {
+      latitude: 52.37454,
+      longitude: 4.897976,
+      zoom: 12
+    }
+  };
+
   return (
     <div className="page page--gray page--main">
       <header className="header">
@@ -83,7 +99,7 @@ function MainPage({rentalOffersCount, offersList}: MainPageProps): JSX.Element {
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{rentalOffersCount} places to stay in Amsterdam</b>
+              <b className="places__found">{amsterdamOffers.length} places to stay in Amsterdam</b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
                 <span className="places__sorting-type" tabIndex={0}>
@@ -100,11 +116,19 @@ function MainPage({rentalOffersCount, offersList}: MainPageProps): JSX.Element {
                 </ul>
               </form>
               <div className="cities__places-list places__list tabs__content">
-                <CitiesCardList offersList={offersList}/>
+                <CitiesCardList 
+                  offersList={amsterdamOffers} 
+                  onListItemHover={onListItemHover}
+                />
               </div>
             </section>
             <div className="cities__right-section">
-              <section className="cities__map map"></section>
+              <Map 
+                city={amsterdamCity}
+                offers={amsterdamOffers}
+                selectedOffer={selectedOffer}
+                className="cities__map"
+              />
             </div>
           </div>
         </div>

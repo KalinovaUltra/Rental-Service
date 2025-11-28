@@ -1,25 +1,63 @@
-import { JSX } from "react/jsx-runtime";
+import { JSX, useState } from "react";
 import { OfferInside } from "../../components/offer-inside/offer-inside";
 import { NearPlaces } from "../../components/near-places/near-places";
 import { Logo } from "../../components/logo/logo";
 import { FullOffer } from "../../types/offer";
+import { Review } from "../../types/reviews"; 
 import { useParams } from "react-router-dom";
 import { NotFoundPage } from "../not-found-page/not-found-page";
 import ReviewForm from "../../components/review/review";
+import { ReviewsList } from "../../components/review_list/review_list"; 
+import Map from "../../components/map/map";
 
 type OfferProps = {
   offers: FullOffer[];
+  reviews: Review[];
 }
 
-function OfferPage({offers}: OfferProps): JSX.Element {
+function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
   const params = useParams();
   const offer = offers.find((item) => item.id === params.id);
+  const [hoveredOfferId, setHoveredOfferId] = useState<string | null>(null);
   
   if (!offer) {
     return <NotFoundPage />;
   }
 
   const getRatingWidth = (rating: number) => `${(rating / 5) * 100}%`;
+
+  const offerReviews = reviews;
+
+
+  const nearbyOffers = offers
+    .filter(item => item.id !== offer.id)
+    .slice(0, 3);
+
+
+  const offersForMap = nearbyOffers.map(offerItem => ({
+    id: offerItem.id,
+    title: offerItem.title,
+    type: offerItem.type,
+    price: offerItem.price,
+    previewImage: offerItem.images[0],
+    city: offerItem.city,
+    location: offerItem.location,
+    isPremium: offerItem.isPremium,
+    isFavorite: offerItem.isFavorite,
+    rating: offerItem.rating
+  }));
+
+  const hoveredOffer = hoveredOfferId 
+    ? offersForMap.find(offer => offer.id === hoveredOfferId) 
+    : null;
+
+  const handleCardMouseEnter = (offerId: string) => {
+    setHoveredOfferId(offerId);
+  };
+
+  const handleCardMouseLeave = () => {
+    setHoveredOfferId(null);
+  };
 
   return (
     <div className="page">
@@ -133,43 +171,34 @@ function OfferPage({offers}: OfferProps): JSX.Element {
                   </p>
                 </div>
               </div>
-              <section className="offer__reviews reviews">
-                <h2 className="reviews__title">Reviews &middot; <span className="reviews__amount">1</span></h2>
-                <ul className="reviews__list">
-                  <li className="reviews__item">
-                    <div className="reviews__user user">
-                      <div className="reviews__avatar-wrapper user__avatar-wrapper">
-                        <img className="reviews__avatar user__avatar" src="/img/avatar-max.jpg" width="54" height="54" alt="Reviews avatar" />
-                      </div>
-                      <span className="reviews__user-name">
-                        Max
-                      </span>
-                    </div>
-                    <div className="reviews__info">
-                      <div className="reviews__rating rating">
-                        <div className="reviews__stars rating__stars">
-                          <span style={{width: "80%"}}></span>
-                          <span className="visually-hidden">Rating</span>
-                        </div>
-                      </div>
-                      <p className="reviews__text">
-                        A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam. The building is green and from 18th century.
-                      </p>
-                      <time className="reviews__time" dateTime="2019-04-24">April 2019</time>
-                    </div>
-                  </li>
-                </ul>
-                <ReviewForm />
-              </section>
+
+              <ReviewsList reviews={offerReviews} />
+              
+              <ReviewForm />
             </div>
           </div>
-          <section className="offer__map map"></section>
+
+          <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
+  <Map 
+    city={offer.city}
+    offers={offersForMap}
+    selectedOffer={hoveredOffer}
+    className="offer__map"
+  />
+</div>
         </section>
+        
         <div className="container">
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <div className="near-places__list places__list">
-              <NearPlaces offers={offers} currentOfferId={offer.id} />
+
+              <NearPlaces 
+                offers={offers} 
+                currentOfferId={offer.id}
+                onCardMouseEnter={handleCardMouseEnter}
+                onCardMouseLeave={handleCardMouseLeave}
+              />
             </div>
           </section>
         </div>

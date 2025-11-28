@@ -4,8 +4,9 @@ import App from './components/app/app'
 import { Settings } from './const'
 import { offers } from './mocks/offers'
 import { offersList } from './mocks/offers-list'
+import { reviews } from './mocks/reviews'
 
-const root = ReactDOM.createRoot( //рендер app
+const root = ReactDOM.createRoot( 
   document.getElementById('root') as HTMLElement
 );
 
@@ -14,10 +15,12 @@ root.render(
     <App 
     rentalOffersCount={Settings.rentOffersCount}
     offersList = {offersList}
-    offers = {offers}/>
+    offers = {offers}
+    reviews = {reviews}
+    />
   </React.StrictMode>
 );
-
+ 
 
 /*
 import React from 'react'; //рендер простых страниц

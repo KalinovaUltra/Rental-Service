@@ -4,21 +4,26 @@ import { FullOffer } from "../../types/offer";
 type NearPlacesProps = {
   offers: FullOffer[];
   currentOfferId?: string;
+  onCardMouseEnter?: (offerId: string) => void;
+  onCardMouseLeave?: () => void;
 }
 
-function NearPlaces({ offers, currentOfferId }: NearPlacesProps) {
-
+function NearPlaces({ offers, currentOfferId, onCardMouseEnter, onCardMouseLeave }: NearPlacesProps) {
   const nearOffers = offers
     .filter(offer => offer.id !== currentOfferId)
     .slice(0, 3);
-
 
   const getRatingWidth = (rating: number) => `${(rating / 5) * 100}%`;
 
   return (
     <>
       {nearOffers.map((offer) => (
-        <article key={offer.id} className="near-places__card place-card">
+        <article 
+          key={offer.id} 
+          className="near-places__card place-card"
+          onMouseEnter={() => onCardMouseEnter?.(offer.id)}
+          onMouseLeave={onCardMouseLeave}
+        >
           {offer.isPremium && (
             <div className="place-card__mark">
               <span>Premium</span>
