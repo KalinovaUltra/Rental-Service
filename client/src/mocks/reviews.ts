@@ -6,7 +6,7 @@ export const reviews: Review[] = [
     date: '2019-04-24',
     user: {
       name: 'Max',
-      avatarUrl: '/img/avatar-max.jpg',
+      avatarUrl: '/img/chel1.jpg',
       isPro: false
     },
     comment: 'A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam. The building is green and from 18th century.',
@@ -17,7 +17,7 @@ export const reviews: Review[] = [
     date: '2023-07-15',
     user: {
       name: 'Sophie',
-      avatarUrl: '/img/avatar-angelina.jpg',
+      avatarUrl: '/img/chel2.jpg',
       isPro: true
     },
     comment: 'The apartment was fantastic! Great location, clean, and had all the amenities we needed. The host was very responsive and helpful.',

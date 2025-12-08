@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { OffersList, FullOffer } from '../../types/offer';
@@ -12,20 +11,18 @@ import { AppRoute, AuthorizationStatus } from '../../const';
 import { Review } from '../../types/reviews';
 
 type AppProps = {
-    rentalOffersCount: number;
     offersList: OffersList[];
     offers: FullOffer[];
     reviews: Review[];
 }
 
-function App({rentalOffersCount, offers, offersList, reviews}: AppProps): React.JSX.Element {
+function App({ offers, offersList, reviews }: AppProps): React.JSX.Element {
     const [hoveredOfferId, setHoveredOfferId] = useState<string | null>(null);
 
     const handleListItemHover = (offerId: string) => {
         setHoveredOfferId(offerId);
     };
 
- 
     const hoveredOffer = hoveredOfferId 
         ? offersList.find(offer => offer.id === hoveredOfferId) 
         : null;
@@ -37,8 +34,6 @@ function App({rentalOffersCount, offers, offersList, reviews}: AppProps): React.
                     path={AppRoute.Main}
                     element={
                         <MainPage 
-                            rentalOffersCount={rentalOffersCount} 
-                            offersList={offersList}
                             onListItemHover={handleListItemHover}
                             selectedOffer={hoveredOffer} 
                         />

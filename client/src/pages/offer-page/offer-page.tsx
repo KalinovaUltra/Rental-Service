@@ -3,22 +3,29 @@ import { OfferInside } from "../../components/offer-inside/offer-inside";
 import { NearPlaces } from "../../components/near-places/near-places";
 import { Logo } from "../../components/logo/logo";
 import { FullOffer } from "../../types/offer";
-import { Review } from "../../types/reviews"; 
+import { Review, User } from "../../types/reviews"; 
 import { useParams } from "react-router-dom";
 import { NotFoundPage } from "../not-found-page/not-found-page";
-import ReviewForm from "../../components/review/review";
 import { ReviewsList } from "../../components/review_list/review_list"; 
 import Map from "../../components/map/map";
+import ReviewForm from "../../components/review-form/review-form";
 
 type OfferProps = {
   offers: FullOffer[];
   reviews: Review[];
 }
 
-function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
+function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element {
   const params = useParams();
   const offer = offers.find((item) => item.id === params.id);
   const [hoveredOfferId, setHoveredOfferId] = useState<string | null>(null);
+  const [offerReviews, setOfferReviews] = useState<Review[]>(initialReviews);
+
+  const [currentUser] = useState<User>({
+    name: 'User1',
+    avatarUrl: '/img/image.png',
+    isPro: false,
+  });
   
   if (!offer) {
     return <NotFoundPage />;
@@ -26,13 +33,12 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
 
   const getRatingWidth = (rating: number) => `${(rating / 5) * 100}%`;
 
-  const offerReviews = reviews;
-
-
   const nearbyOffers = offers
-    .filter(item => item.id !== offer.id)
+    .filter(item => 
+      item.id !== offer.id && 
+      item.city.name === offer.city.name
+    )
     .slice(0, 3);
-
 
   const offersForMap = nearbyOffers.map(offerItem => ({
     id: offerItem.id,
@@ -47,6 +53,7 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
     rating: offerItem.rating
   }));
 
+
   const hoveredOffer = hoveredOfferId 
     ? offersForMap.find(offer => offer.id === hoveredOfferId) 
     : null;
@@ -57,6 +64,19 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
 
   const handleCardMouseLeave = () => {
     setHoveredOfferId(null);
+  };
+
+
+  const handleReviewSubmit = (reviewData: Omit<Review, 'id' | 'date' | 'user'>) => {
+    const newReview: Review = {
+      id: `review-${Date.now()}`,
+      date: new Date().toISOString(),
+      user: currentUser, 
+      ...reviewData,
+    };
+
+
+    setOfferReviews(prevReviews => [newReview, ...prevReviews]);
   };
 
   return (
@@ -73,7 +93,7 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
                   <a className="header__nav-link header__nav-link--profile" href="#">
                     <div className="header__avatar-wrapper user__avatar-wrapper">
                     </div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
+                    <span className="header__user-name user__name">{currentUser.name}</span>
                     <span className="header__favorite-count">3</span>
                   </a>
                 </li>
@@ -100,7 +120,7 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
             </div>
           </div>
           <div className="offer__container container">
-            <div className="offer__wrapper">
+            <div className="offer__wrapper">             
               {offer.isPremium && (
                 <div className="offer__mark">
                   <span>Premium</span>
@@ -171,28 +191,26 @@ function OfferPage({ offers, reviews }: OfferProps): JSX.Element {
                   </p>
                 </div>
               </div>
-
               <ReviewsList reviews={offerReviews} />
-              
-              <ReviewForm />
+
+              <ReviewForm onSubmit={handleReviewSubmit} />
             </div>
           </div>
 
           <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
-  <Map 
-    city={offer.city}
-    offers={offersForMap}
-    selectedOffer={hoveredOffer}
-    className="offer__map"
-  />
-</div>
+            <Map 
+              city={offer.city}
+              offers={offersForMap}
+              selectedOffer={hoveredOffer}
+              className="offer__map"
+            />
+          </div>
         </section>
         
         <div className="container">
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <div className="near-places__list places__list">
-
               <NearPlaces 
                 offers={offers} 
                 currentOfferId={offer.id}

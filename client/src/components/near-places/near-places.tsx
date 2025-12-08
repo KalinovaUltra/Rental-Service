@@ -9,11 +9,25 @@ type NearPlacesProps = {
 }
 
 function NearPlaces({ offers, currentOfferId, onCardMouseEnter, onCardMouseLeave }: NearPlacesProps) {
+
+  const currentOffer = offers.find(offer => offer.id === currentOfferId);
+  
+  if (!currentOffer) {
+    return null;
+  }
+
   const nearOffers = offers
-    .filter(offer => offer.id !== currentOfferId)
+    .filter(offer => 
+      offer.id !== currentOfferId && 
+      offer.city.name === currentOffer.city.name
+    )
     .slice(0, 3);
 
   const getRatingWidth = (rating: number) => `${(rating / 5) * 100}%`;
+
+  if (nearOffers.length === 0) {
+    return null; 
+  }
 
   return (
     <>
