@@ -31,6 +31,7 @@ function CitiesCardList({offersList, onListItemHover}: CitiesCardListProps){
                     price={item.price} 
                     previewImage={item.previewImage} 
                     isPremium={item.isPremium} 
+                    isFavorite={item.isFavorite}
                     rating={item.rating}
                     onMouseEnter={() => handleMouseEnter(item.id)}
                     onMouseLeave={handleMouseLeave}

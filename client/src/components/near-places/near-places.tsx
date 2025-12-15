@@ -44,16 +44,20 @@ function NearPlaces({ offers, currentOfferId, onCardMouseEnter, onCardMouseLeave
             </div>
           )}
           <div className="near-places__image-wrapper place-card__image-wrapper">
-            <Link to={`/offer/${offer.id}`}>
-              <img 
-                className="place-card__image" 
-                src={offer.images[0]} 
-                width="260" 
-                height="200" 
-                alt="Place image" 
-              />
-            </Link>
-          </div>
+  <Link to={`/offer/${offer.id}`}>
+    <div 
+      className="place-card__image"
+      style={{
+        width: '260px',
+        height: '200px',
+        backgroundImage: `url(${offer.images[0]})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    />
+  </Link>
+</div>
           <div className="place-card__info">
             <div className="place-card__price-wrapper">
               <div className="place-card__price">

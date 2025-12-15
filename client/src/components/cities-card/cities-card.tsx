@@ -7,13 +7,14 @@ type CitiesCardProps = {
   type: string;
   price: number;
   isPremium: boolean;
+  isFavorite: boolean;
   previewImage: string;
   rating: number;
   onMouseEnter?: () => void; 
   onMouseLeave?: () => void; 
 }
 
-function CitiesCard({id, title, type, price, isPremium, previewImage, rating, onMouseEnter, onMouseLeave}: CitiesCardProps) {
+function CitiesCard({id, title, type, price, isPremium, isFavorite, previewImage, rating, onMouseEnter, onMouseLeave}: CitiesCardProps) {
   return (
     <article 
       className="cities__card place-card" 
@@ -26,17 +27,28 @@ function CitiesCard({id, title, type, price, isPremium, previewImage, rating, on
         </div>
       )}
       <div className="cities__image-wrapper place-card__image-wrapper">
-        <Link to={`${AppRoute.Offer}/${id}`}>
-          <img className="place-card__image" src={previewImage} width="260" height="200" alt="Place image" />
-        </Link>
-      </div>
+  <Link to={`${AppRoute.Offer}/${id}`}>
+    <div 
+      className="place-card__image"
+      style={{
+        width: '260px',
+        height: '200px',
+        backgroundImage: `url(${previewImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    />
+  </Link>
+</div>
       <div className="place-card__info">
         <div className="place-card__price-wrapper">
           <div className="place-card__price">
             <b className="place-card__price-value">&euro;{price}</b>
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
-          <button className="place-card__bookmark-button button" type="button">
+          <button className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`}>
+            
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use href="#icon-bookmark"></use>
             </svg>

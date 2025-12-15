@@ -2,17 +2,23 @@ import { JSX } from "react";
 import { Link } from "react-router-dom";
 import { AppRoute } from "../../const";
 
+
 type FavoritesCardProps = {
   id: string;
   title: string;
   type: string;
   price: number;
   isPremium: boolean;
+  isFavorite: boolean;
   previewImage: string;
   rating: number;
 }
 
-function FavoritesCard({id, title, type, price, previewImage, isPremium, rating}: FavoritesCardProps): JSX.Element {
+function FavoritesCard({id, title, type, price, previewImage, isPremium,isFavorite, rating}: FavoritesCardProps): JSX.Element {
+  const handleFavoriteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); 
+    //console.log(`Remove ${id} from favorites`);
+  };
   return (
     <article className="favorites__card place-card">
       {isPremium && (
@@ -31,7 +37,11 @@ function FavoritesCard({id, title, type, price, previewImage, isPremium, rating}
             <b className="place-card__price-value">&euro;{price}</b>
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
-          <button className="place-card__bookmark-button place-card__bookmark-button--active button" type="button">
+           <button 
+            className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`} // ИСПОЛЬЗУЕМ isFavorite
+            type="button"
+            onClick={handleFavoriteClick}
+          >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use href="#icon-bookmark"></use>
             </svg>

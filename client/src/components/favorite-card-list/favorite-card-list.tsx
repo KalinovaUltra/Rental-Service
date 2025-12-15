@@ -38,7 +38,8 @@ function FavoritesList({offersList}: FavoritesCardListProps): JSX.Element {
                   type={item.type} 
                   price={item.price} 
                   previewImage={item.previewImage} 
-                  isPremium={item.isPremium} 
+                  isPremium={item.isPremium}
+                  isFavorite={item.isFavorite} 
                   rating={item.rating} 
                 />
               ))}
