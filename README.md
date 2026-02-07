@@ -31,3 +31,11 @@
 <br>Ctrl + C для выхода
 <br>Перейдите по адресу http://localhost:5173/ и убедитесь, что проект запущен.
 
+
+<br>Установка библиотек для создания функционала
+<br>npm install sequelize – ORM для взаимодействия с PostgreSQL
+<br>npm install pg и npm install pg-hstore – драйверы для работы с PostgreSQL
+<br>npm install cors – для настройки политики кросс-доменных запросов
+<br>npm install dotenv – для работы с  переменными окружения
+<br>npm install express - веб-фреймворк для создания маршрутов и серверной логики
+<br>npm install -D nodemon  - пакет для разработки приложения nodemon. Он необходим для автоматического перезапуска сервера во время разработки.
