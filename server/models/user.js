@@ -43,4 +43,4 @@ User.init({
 });
 
 
-export default User;
+export default User; //исправить экспорт User
