@@ -86,3 +86,11 @@ export const SortOffersType = {
     PriceToLow : 'Price: high to low',
     TopRated : 'Top rated first',
 };
+
+export const APIRoute = {
+    Offers : '/offers',
+    Login : '/login',
+    Logout : '/logout'
+};
+
+export const TIMEOUT_SHOW_ERROR = 2000;

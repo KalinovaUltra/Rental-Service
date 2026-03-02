@@ -6,6 +6,12 @@ import { offersList } from './mocks/offers-list'
 import { reviews } from './mocks/reviews'
 import { store } from './store' 
 import { Provider } from 'react-redux'
+import { ErrorMessage } from './components/error-message/error-message'
+import { checkAuthAction } from './store/api-action'
+import { fetchOffersAction } from './store/api-action'
+
+store.dispatch(checkAuthAction());
+store.dispatch(fetchOffersAction());
 
 const root = ReactDOM.createRoot( 
     document.getElementById('root') as HTMLElement
@@ -14,6 +20,7 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         <Provider store={store}>
+            <ErrorMessage/>
             <App 
                 offersList={offersList}
                 offers={offers}

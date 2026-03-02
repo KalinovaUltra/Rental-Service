@@ -9,6 +9,8 @@ import { NotFoundPage } from '../../pages/not-found-page/not-found-page';
 import { PrivateRoute } from '../private-route/private-route';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { Review } from '../../types/reviews';
+import { useAppSelector } from '../../hooks';
+import { LoadingPage } from '../loading-page/loading-page';
 
 type AppProps = {
     offersList: OffersList[];
@@ -26,6 +28,13 @@ function App({ offers, offersList, reviews }: AppProps): React.JSX.Element {
     const hoveredOffer = hoveredOfferId 
         ? offersList.find(offer => offer.id === hoveredOfferId) 
         : null;
+
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+    const isQuestionsDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+
+    if (authorizationStatus === AuthorizationStatus.Unknown || isQuestionsDataLoading) {
+        return <LoadingPage />;
+    }
 
     return (
         <BrowserRouter>
@@ -46,7 +55,7 @@ function App({ offers, offersList, reviews }: AppProps): React.JSX.Element {
                 <Route
                     path={AppRoute.Favorites}
                     element={
-                        <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}> 
+                        <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
                             <FavoritesPage offersList={offersList}/>
                         </PrivateRoute>
                     }
