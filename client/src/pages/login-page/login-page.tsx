@@ -14,6 +14,8 @@ function LoginPage(){
  const dispatch = useAppDispatch();
 
  const userAuthorizationStatus = useAppSelector(getAuthorizationStatus);
+ 
+
  if (userAuthorizationStatus === AuthorizationStatus.Auth) {
    return <Navigate to={ AppRoute.Main }/>;
  }

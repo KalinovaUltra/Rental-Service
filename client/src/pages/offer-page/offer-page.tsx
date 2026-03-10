@@ -1,63 +1,81 @@
-import { JSX, useState } from "react";
+import { JSX, useState, useEffect } from "react";
 import { OfferInside } from "../../components/offer-inside/offer-inside";
 import { NearPlaces } from "../../components/near-places/near-places";
 import { Logo } from "../../components/logo/logo";
-import { FullOffer } from "../../types/offer";
-import { Review, User } from "../../types/reviews"; 
-import { useParams } from "react-router-dom";
+import { FullOffer, OffersList } from "../../types/offer";
+import { Review } from "../../types/reviews"; 
+import { useParams, Navigate } from "react-router-dom";
 import { NotFoundPage } from "../not-found-page/not-found-page";
 import { ReviewsList } from "../../components/review_list/review_list"; 
 import Map from "../../components/map/map";
 import ReviewForm from "../../components/review-form/review-form";
 import { Link } from "react-router-dom";
-import { AppRoute } from "../../const";
+import { AppRoute, AuthorizationStatus } from "../../const";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { fetchOfferAction, postReviewAction, logoutAction } from "../../store/api-action"; 
+import { 
+  getCurrentOffer, 
+  getOfferReviews, 
+  getNearbyOffers, 
+  getOfferDataLoadingStatus,
+  getAuthorizationStatus,
+  getUser
+} from "../../store/selectors";
+import { LoadingPage } from "../../components/loading-page/loading-page"; 
 
-type OfferProps = {
-  offers: FullOffer[];
-  reviews: Review[];
-}
-
-function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element {
+function OfferPage(): JSX.Element {
   const params = useParams();
-  const offer = offers.find((item) => item.id === params.id);
-  const [hoveredOfferId, setHoveredOfferId] = useState<string | null>(null);
-  const [offerReviews, setOfferReviews] = useState<Review[]>(initialReviews);
-
-  const [currentUser] = useState<User>({
-    name: 'User1',
-    avatarUrl: '/img/image.png',
-    isPro: false,
-  });
+  const dispatch = useAppDispatch();
+  const offerId = params.id;
   
+  const [hoveredOfferId, setHoveredOfferId] = useState<string | null>(null);
+  
+  const offer = useAppSelector(getCurrentOffer);
+  const offerReviews = useAppSelector(getOfferReviews);
+  const nearbyOffers = useAppSelector(getNearbyOffers);
+  const isLoading = useAppSelector(getOfferDataLoadingStatus);
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
+  const user = useAppSelector(getUser);
+
+  useEffect(() => {
+    if (offerId) {
+      dispatch(fetchOfferAction(offerId));
+    }
+    
+    
+    return () => {
+     
+    };
+  }, [offerId, dispatch]);
+
+  const handleReviewSubmit = (reviewData: { comment: string; rating: number }) => {
+    if (offerId) {
+      dispatch(postReviewAction({
+        offerId,
+        comment: reviewData.comment,
+        rating: reviewData.rating
+      }));
+    }
+  };
+
+ 
+  const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    dispatch(logoutAction());
+  };
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   if (!offer) {
     return <NotFoundPage />;
   }
 
   const getRatingWidth = (rating: number) => `${(rating / 5) * 100}%`;
 
-  const nearbyOffers = offers
-    .filter(item => 
-      item.id !== offer.id && 
-      item.city.name === offer.city.name
-    )
-    .slice(0, 3);
-
-  const offersForMap = nearbyOffers.map(offerItem => ({
-    id: offerItem.id,
-    title: offerItem.title,
-    type: offerItem.type,
-    price: offerItem.price,
-    previewImage: offerItem.images[0],
-    city: offerItem.city,
-    location: offerItem.location,
-    isPremium: offerItem.isPremium,
-    isFavorite: offerItem.isFavorite,
-    rating: offerItem.rating
-  }));
-
-
   const hoveredOffer = hoveredOfferId 
-    ? offersForMap.find(offer => offer.id === hoveredOfferId) 
+    ? nearbyOffers.find(offer => offer.id === hoveredOfferId) 
     : null;
 
   const handleCardMouseEnter = (offerId: string) => {
@@ -66,19 +84,6 @@ function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element
 
   const handleCardMouseLeave = () => {
     setHoveredOfferId(null);
-  };
-
-
-  const handleReviewSubmit = (reviewData: Omit<Review, 'id' | 'date' | 'user'>) => {
-    const newReview: Review = {
-      id: `review-${Date.now()}`,
-      date: new Date().toISOString(),
-      user: currentUser, 
-      ...reviewData,
-    };
-
-
-    setOfferReviews(prevReviews => [newReview, ...prevReviews]);
   };
 
   return (
@@ -91,19 +96,41 @@ function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <Link to={AppRoute.Favorites} className="header__nav-link header__nav-link--profile">
-                                        <div className="header__avatar-wrapper user__avatar-wrapper">
-                                        </div>
-                                        <span className="header__user-name user__name">Myemail@gmail.com</span>
-                                        <span className="header__favorite-count">3</span>
-                                    </Link>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {authorizationStatus === AuthorizationStatus.Auth ? (
+                  <>
+                    <li className="header__nav-item user">
+                      <Link to={AppRoute.Favorites} className="header__nav-link header__nav-link--profile">
+                        <div 
+                          className="header__avatar-wrapper user__avatar-wrapper"
+                          style={{ 
+                            backgroundImage: user?.avatarUrl ? `url(${user.avatarUrl})` : 'none',
+                            borderRadius: '50%' 
+                          }}
+                        />
+                        <span className="header__user-name user__name">
+                          {user?.email || 'User'}
+                        </span>
+                        <span className="header__favorite-count">3</span>
+                      </Link>
+                    </li>
+                    <li className="header__nav-item">
+                      <a 
+                        className="header__nav-link" 
+                        href="#"
+                        onClick={handleSignOut} 
+                      >
+                        <span className="header__signout">Sign out</span>
+                      </a>
+                    </li>
+                  </>
+                ) : (
+                  <li className="header__nav-item user">
+                    <Link to={AppRoute.Login} className="header__nav-link header__nav-link--profile">
+                      <div className="header__avatar-wrapper user__avatar-wrapper" />
+                      <span className="header__login">Sign in</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>
@@ -193,16 +220,19 @@ function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element
                   </p>
                 </div>
               </div>
+              
               <ReviewsList reviews={offerReviews} />
 
-              <ReviewForm onSubmit={handleReviewSubmit} />
+              {authorizationStatus === AuthorizationStatus.Auth && (
+                <ReviewForm onSubmit={handleReviewSubmit} />
+              )}
             </div>
           </div>
 
           <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
             <Map 
               city={offer.city}
-              offers={offersForMap}
+              offers={nearbyOffers}
               selectedOffer={hoveredOffer}
               className="offer__map"
             />
@@ -214,8 +244,7 @@ function OfferPage({ offers, reviews: initialReviews }: OfferProps): JSX.Element
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <div className="near-places__list places__list">
               <NearPlaces 
-                offers={offers} 
-                currentOfferId={offer.id}
+                offers={nearbyOffers} 
                 onCardMouseEnter={handleCardMouseEnter}
                 onCardMouseLeave={handleCardMouseLeave}
               />

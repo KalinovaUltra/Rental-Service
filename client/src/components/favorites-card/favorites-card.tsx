@@ -1,7 +1,8 @@
 import { JSX } from "react";
 import { Link } from "react-router-dom";
 import { AppRoute } from "../../const";
-
+import { useAppDispatch } from "../../hooks";
+import { toggleFavoriteAction } from "../../store/api-action";
 
 type FavoritesCardProps = {
   id: string;
@@ -14,11 +15,20 @@ type FavoritesCardProps = {
   rating: number;
 }
 
-function FavoritesCard({id, title, type, price, previewImage, isPremium,isFavorite, rating}: FavoritesCardProps): JSX.Element {
+function FavoritesCard({id, title, type, price, previewImage, isPremium, isFavorite, rating}: FavoritesCardProps): JSX.Element {
+  const dispatch = useAppDispatch();
+  
   const handleFavoriteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
-    //console.log(`Remove ${id} from favorites`);
+    //  1 - добавить, 0 - удалить ИЗБРАННОЕ
+    dispatch(toggleFavoriteAction({ 
+      offerId: id, 
+      status: 0 
+    }));
   };
+
+  const getRatingWidth = (rating: number) => `${Math.round(rating) * 20}%`;
+
   return (
     <article className="favorites__card place-card">
       {isPremium && (
@@ -37,8 +47,8 @@ function FavoritesCard({id, title, type, price, previewImage, isPremium,isFavori
             <b className="place-card__price-value">&euro;{price}</b>
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
-           <button 
-            className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`} // ИСПОЛЬЗУЕМ isFavorite
+          <button 
+            className="place-card__bookmark-button place-card__bookmark-button--active button"
             type="button"
             onClick={handleFavoriteClick}
           >
@@ -50,7 +60,7 @@ function FavoritesCard({id, title, type, price, previewImage, isPremium,isFavori
         </div>
         <div className="place-card__rating rating">
           <div className="place-card__stars rating__stars">
-            <span style={{width: `${rating * 20}%`}}></span>
+            <span style={{width: getRatingWidth(rating)}}></span>
             <span className="visually-hidden">Rating: {rating}</span>
           </div>
         </div>

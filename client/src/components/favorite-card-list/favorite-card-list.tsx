@@ -1,12 +1,25 @@
-import { JSX } from "react";
+import { JSX, useEffect } from "react";
 import { FavoritesCard } from "../favorites-card/favorites-card";
 import { OffersList } from "../../types/offer";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { fetchFavoritesAction } from "../../store/api-action";
+import { getAuthorizationStatus } from "../../store/selectors";
+import { AuthorizationStatus } from "../../const";
 
 type FavoritesCardListProps = {
   offersList: OffersList[];
 }
 
 function FavoritesList({offersList}: FavoritesCardListProps): JSX.Element {
+  const dispatch = useAppDispatch();
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
+
+  useEffect(() => {
+    if (authorizationStatus === AuthorizationStatus.Auth) {
+      dispatch(fetchFavoritesAction());
+    }
+  }, [dispatch, authorizationStatus]);
+
   const cities = ["Paris", "Cologne", "Brussels", "Amsterdam", "Hamburg", "Dusseldorf"];
   
   return (

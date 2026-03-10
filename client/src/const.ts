@@ -90,7 +90,9 @@ export const SortOffersType = {
 export const APIRoute = {
     Offers : '/offers',
     Login : '/login',
-    Logout : '/logout'
+    Logout : '/logout',
+    Comments : '/comments',
+    Favorite : '/favorite',
 };
 
 export const TIMEOUT_SHOW_ERROR = 2000;

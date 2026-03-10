@@ -15,6 +15,7 @@ function NearPlacesCard({ offer }: NearPlacesCardProps) {
       price={offer.price}
       isPremium={offer.isPremium}
       previewImage={offer.previewImage}
+      isFavorite={offer.isFavorite}
       rating={offer.rating}
     />
   );

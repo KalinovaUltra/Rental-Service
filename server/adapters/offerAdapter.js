@@ -11,6 +11,7 @@ const cityCoordinates = {
    const baseUrl = getBaseUrl();
    const cityLocation = cityCoordinates[offer.city];
    let previewImage = offer.previewImage;
+   let photos = offer.photos || [];
     if (previewImage && !previewImage.startsWith('http')) {
      previewImage = `${baseUrl}${previewImage.startsWith('/') ? '' : '/'}${previewImage}`;
    }
@@ -70,7 +71,7 @@ const adaptFullOfferToClient = (offer, author) => {
     isPremium: offer.isPremium,
     rating: parseFloat(offer.rating),
     previewImage,
-    photos,
+    images: photos, 
     bedrooms: offer.rooms,
     maxAdults: offer.guests,
     goods: offer.features || [],
