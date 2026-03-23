@@ -44,15 +44,17 @@ export function formatPrice(price: number): string {
   return `€${price}`;
 }
 
-export function sortOffersByType (offers: OffersList[], type: SortOffer): OffersList[] {
-    switch (type) {
-    case SortOffersType.PriceToHigh:
-    return offers.sort((a, b) => a.price - b.price);
-    case SortOffersType.PriceToLow:
-    return offers.sort((a, b) => b.price - a.price);
-    case SortOffersType.TopRated:
-    return offers.sort((a, b) => b.rating - a.rating);
-    default:
-    return offers;
-}
+export function sortOffersByType(offers: OffersList[], type: string): OffersList[] {
+  const sorted = [...offers];
+  
+  switch (type) {
+    case SortOffersType.PriceToHigh: // "Price: low to high"
+      return sorted.sort((a, b) => a.price - b.price);
+    case SortOffersType.PriceToLow: // "Price: high to low"
+      return sorted.sort((a, b) => b.price - a.price);
+    case SortOffersType.TopRated: // "Top rated first"
+      return sorted.sort((a, b) => b.rating - a.rating);
+    default: // SortOffersType.Popular - "Popular"
+      return sorted;
+  }
 }

@@ -85,7 +85,7 @@ export const SortOffersType = {
     PriceToHigh : 'Price: low to high',
     PriceToLow : 'Price: high to low',
     TopRated : 'Top rated first',
-};
+} as const;
 
 export const APIRoute = {
     Offers : '/offers',
