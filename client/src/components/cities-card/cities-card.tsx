@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
-import { AppRoute } from "../../const";
+import { AppRoute, AuthorizationStatus } from "../../const";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { toggleFavoriteAction } from "../../store/api-action";
+import { getAuthorizationStatus } from "../../store/selectors";
 
 type CitiesCardProps = {
   id: string;
@@ -15,6 +18,25 @@ type CitiesCardProps = {
 }
 
 function CitiesCard({id, title, type, price, isPremium, isFavorite, previewImage, rating, onMouseEnter, onMouseLeave}: CitiesCardProps) {
+  const dispatch = useAppDispatch();
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
+  const isAuth = authorizationStatus === AuthorizationStatus.Auth;
+
+  const handleFavoriteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuth) {
+      window.location.href = AppRoute.Login;
+      return;
+    }
+
+    dispatch(toggleFavoriteAction({ 
+      offerId: id, 
+      status: isFavorite ? 0 : 1 
+    }));
+  };
+
   return (
     <article 
       className="cities__card place-card" 
@@ -27,32 +49,36 @@ function CitiesCard({id, title, type, price, isPremium, isFavorite, previewImage
         </div>
       )}
       <div className="cities__image-wrapper place-card__image-wrapper">
-  <Link to={`${AppRoute.Offer}/${id}`}>
-    <div 
-      className="place-card__image"
-      style={{
-        width: '260px',
-        height: '200px',
-        backgroundImage: `url(${previewImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    />
-  </Link>
-</div>
+        <Link to={`${AppRoute.Offer}/${id}`}>
+          <div 
+            className="place-card__image"
+            style={{
+              width: '260px',
+              height: '200px',
+              backgroundImage: `url(${previewImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          />
+        </Link>
+      </div>
       <div className="place-card__info">
         <div className="place-card__price-wrapper">
           <div className="place-card__price">
             <b className="place-card__price-value">&euro;{price}</b>
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
-          <button className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`}>
-            
+          <button 
+            className={`place-card__bookmark-button button ${isFavorite && isAuth ? 'place-card__bookmark-button--active' : ''}`}
+            onClick={handleFavoriteClick}
+          >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use href="#icon-bookmark"></use>
             </svg>
-            <span className="visually-hidden">To bookmarks</span>
+            <span className="visually-hidden">
+              {isFavorite && isAuth ? 'In bookmarks' : 'To bookmarks'}
+            </span>
           </button>
         </div>
         <div className="place-card__rating rating">

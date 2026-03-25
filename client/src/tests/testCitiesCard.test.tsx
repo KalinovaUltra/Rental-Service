@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { CitiesCard } from '../components/cities-card/cities-card'; 
-import { AppRoute } from '../const'; 
+import { screen } from '@testing-library/react';
+import { CitiesCard } from '../components/cities-card/cities-card';
+import { renderWithProviders } from './render-with-providers';
+import { AuthorizationStatus } from '../const'; 
 
 describe('CitiesCard', () => {
   const mockProps = {
@@ -16,12 +16,12 @@ describe('CitiesCard', () => {
     rating: 4.5,
   };
 
-  const renderCard = (props = mockProps) => {
-    return render(
-      <MemoryRouter>
-        <CitiesCard {...props} />
-      </MemoryRouter>
-    );
+  const renderCard = (props = mockProps, isAuth = false) => {
+    return renderWithProviders(<CitiesCard {...props} />, {
+      preloadedState: {
+        authorizationStatus: isAuth ? AuthorizationStatus.Auth : AuthorizationStatus.NoAuth,
+      }
+    });
   };
 
   it('заголовок объявления отображается на карточке', () => {
@@ -48,7 +48,7 @@ describe('CitiesCard', () => {
   it('ссылка на страницу объявления содержит id в href', () => {
     renderCard();
     const link = screen.getByRole('link', { name: mockProps.title });
-    expect(link).toHaveAttribute('href', `${AppRoute.Offer}/${mockProps.id}`);
+    expect(link).toHaveAttribute('href', `/offer/${mockProps.id}`);
   });
 
   it('отображает рейтинг в виде процентов', () => {
@@ -68,14 +68,20 @@ describe('CitiesCard', () => {
     expect(bookmarkButton).toBeInTheDocument();
   });
 
-  it('кнопка избранного имеет активный класс когда isFavorite = true', () => {
-    renderCard({ ...mockProps, isFavorite: true });
+  it('кнопка избранного имеет активный класс когда isFavorite = true и пользователь авторизован', () => {
+    renderCard({ ...mockProps, isFavorite: true }, true);
     const bookmarkButton = document.querySelector('.place-card__bookmark-button');
     expect(bookmarkButton).toHaveClass('place-card__bookmark-button--active');
   });
 
+  it('кнопка избранного не имеет активный класс когда isFavorite = true но пользователь не авторизован', () => {
+    renderCard({ ...mockProps, isFavorite: true }, false);
+    const bookmarkButton = document.querySelector('.place-card__bookmark-button');
+    expect(bookmarkButton).not.toHaveClass('place-card__bookmark-button--active');
+  });
+
   it('кнопка избранного не имеет активный класс когда isFavorite = false', () => {
-    renderCard({ ...mockProps, isFavorite: false });
+    renderCard({ ...mockProps, isFavorite: false }, true);
     const bookmarkButton = document.querySelector('.place-card__bookmark-button');
     expect(bookmarkButton).not.toHaveClass('place-card__bookmark-button--active');
   });

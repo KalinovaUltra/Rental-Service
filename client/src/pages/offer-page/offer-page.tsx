@@ -4,7 +4,7 @@ import { NearPlaces } from "../../components/near-places/near-places";
 import { Logo } from "../../components/logo/logo";
 import { FullOffer, OffersList } from "../../types/offer";
 import { Review } from "../../types/reviews"; 
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { NotFoundPage } from "../not-found-page/not-found-page";
 import { ReviewsList } from "../../components/review_list/review_list"; 
 import Map from "../../components/map/map";
@@ -12,7 +12,7 @@ import ReviewForm from "../../components/review-form/review-form";
 import { Link } from "react-router-dom";
 import { AppRoute, AuthorizationStatus } from "../../const";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { fetchOfferAction, postReviewAction, logoutAction } from "../../store/api-action"; 
+import { fetchOfferAction, postReviewAction, logoutAction, toggleFavoriteAction } from "../../store/api-action";
 import { 
   getCurrentOffer, 
   getOfferReviews, 
@@ -25,6 +25,7 @@ import { LoadingPage } from "../../components/loading-page/loading-page";
 
 function OfferPage(): JSX.Element {
   const params = useParams();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const offerId = params.id;
   
@@ -36,16 +37,14 @@ function OfferPage(): JSX.Element {
   const isLoading = useAppSelector(getOfferDataLoadingStatus);
   const authorizationStatus = useAppSelector(getAuthorizationStatus);
   const user = useAppSelector(getUser);
+  const isAuth = authorizationStatus === AuthorizationStatus.Auth;
 
   useEffect(() => {
     if (offerId) {
       dispatch(fetchOfferAction(offerId));
     }
     
-    
-    return () => {
-     
-    };
+    return () => {};
   }, [offerId, dispatch]);
 
   const handleReviewSubmit = (reviewData: { comment: string; rating: number }) => {
@@ -58,10 +57,24 @@ function OfferPage(): JSX.Element {
     }
   };
 
- 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     dispatch(logoutAction());
+  };
+
+  const handleFavoriteClick = () => {
+
+    if (!isAuth) {
+      navigate(AppRoute.Login);
+      return;
+    }
+
+    if (offer) {
+      dispatch(toggleFavoriteAction({ 
+        offerId: offer.id, 
+        status: offer.isFavorite ? 0 : 1 
+      }));
+    }
   };
 
   if (isLoading) {
@@ -96,7 +109,7 @@ function OfferPage(): JSX.Element {
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth ? (
+                {isAuth ? (
                   <>
                     <li className="header__nav-item user">
                       <Link to={AppRoute.Favorites} className="header__nav-link header__nav-link--profile">
@@ -159,12 +172,16 @@ function OfferPage(): JSX.Element {
                 <h1 className="offer__name">
                   {offer.title}
                 </h1>
-                <button className={`offer__bookmark-button button ${offer.isFavorite ? 'offer__bookmark-button--active' : ''}`} type="button">
+                <button 
+                  className={`offer__bookmark-button button ${offer.isFavorite && isAuth ? 'offer__bookmark-button--active' : ''}`} 
+                  type="button"
+                  onClick={handleFavoriteClick}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use href="#icon-bookmark"></use>
                   </svg>
                   <span className="visually-hidden">
-                    {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
+                    {offer.isFavorite && isAuth ? 'In bookmarks' : 'To bookmarks'}
                   </span>
                 </button>
               </div>
@@ -223,7 +240,7 @@ function OfferPage(): JSX.Element {
               
               <ReviewsList reviews={offerReviews} />
 
-              {authorizationStatus === AuthorizationStatus.Auth && (
+              {isAuth && (
                 <ReviewForm onSubmit={handleReviewSubmit} />
               )}
             </div>

@@ -49,6 +49,9 @@ function MainPage({ onListItemHover, selectedOffer }: MainPageProps): JSX.Elemen
         dispatch(logoutAction());
     };
 
+    // Проверяем, есть ли предложения в выбранном городе
+    const hasOffers = rentalOffersCount > 0;
+
     return (
         <div className="page page--gray page--main">
             <header className="header">
@@ -60,7 +63,6 @@ function MainPage({ onListItemHover, selectedOffer }: MainPageProps): JSX.Elemen
                         <nav className="header__nav">
                             <ul className="header__nav-list">
                                 {authorizationStatus === AuthorizationStatus.Auth ? (
-     
                                     <>
                                         <li className="header__nav-item user">
                                             <Link to={AppRoute.Favorites} className="header__nav-link header__nav-link--profile">
@@ -73,8 +75,8 @@ function MainPage({ onListItemHover, selectedOffer }: MainPageProps): JSX.Elemen
                                                 >
                                                 </div>
                                                 <span className="header__user-name user__name">
-  {user?.email || 'User'}
-</span>
+                                                    {user?.email || 'User'}
+                                                </span>
                                                 <span className="header__favorite-count">{favoriteCount}</span>
                                             </Link>
                                         </li>
@@ -92,7 +94,6 @@ function MainPage({ onListItemHover, selectedOffer }: MainPageProps): JSX.Elemen
                                         </li>
                                     </>
                                 ) : (
-                                    
                                     <li className="header__nav-item user">
                                         <Link to={AppRoute.Login} className="header__nav-link header__nav-link--profile">
                                             <div className="header__avatar-wrapper user__avatar-wrapper">
@@ -107,43 +108,62 @@ function MainPage({ onListItemHover, selectedOffer }: MainPageProps): JSX.Elemen
                 </div>
             </header>
 
-            <main className="page__main page__main--index">
+            <main className={`page__main page__main--index ${!hasOffers ? 'page__main--index-empty' : ''}`}>
                 <h1 className="visually-hidden">Cities</h1>
                 <div className="tabs">
                     <section className="locations container">
                         <CitiesList selectedCity={selectedCity} />
                     </section>
                 </div>
-                <div className="cities">
-                    <div className="cities__places-container container">
-                        <section className="cities__places places">
-                            <h2 className="visually-hidden">Places</h2>
-                            <b className="places__found">{rentalOffersCount} places to stay in {selectedCity?.name}</b>
+                
+                {hasOffers ? (
+                    // Есть предложения - показываем список и карту
+                    <div className="cities">
+                        <div className="cities__places-container container">
+                            <section className="cities__places places">
+                                <h2 className="visually-hidden">Places</h2>
+                                <b className="places__found">{rentalOffersCount} places to stay in {selectedCity?.name}</b>
 
-                            <SortOptions 
-                                activeSorting={activeSort} 
-                                onChange={(newSorting) => setActiveSort(newSorting)}
-                            />
-                            
-                            <div className="cities__places-list places__list tabs__content">
-                                <CitiesCardList 
-                                    offersList={sortedOffers} 
-                                    onListItemHover={handleCardMouseEnter}
+                                <SortOptions 
+                                    activeSorting={activeSort} 
+                                    onChange={(newSorting) => setActiveSort(newSorting)}
                                 />
+                                
+                                <div className="cities__places-list places__list tabs__content">
+                                    <CitiesCardList 
+                                        offersList={sortedOffers} 
+                                        onListItemHover={handleCardMouseEnter}
+                                    />
+                                </div>
+                            </section>
+                            <div className="cities__right-section">
+                                {selectedCity && (
+                                    <Map 
+                                        city={selectedCity}
+                                        offers={selectedCityOffers}
+                                        selectedOffer={selectedOffer}
+                                        className="cities__map"
+                                    />
+                                )}
                             </div>
-                        </section>
-                        <div className="cities__right-section">
-  {selectedCity && (
-    <Map 
-      city={selectedCity}
-      offers={selectedCityOffers}
-      selectedOffer={selectedOffer}
-      className="cities__map"
-    />
-  )}
-</div>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    // Нет предложений - показываем пустое состояние
+                    <div className="cities">
+                        <div className="cities__places-container cities__places-container--empty container">
+                            <section className="cities__no-places">
+                                <div className="cities__status-wrapper tabs__content">
+                                    <b className="cities__status">No places to stay available</b>
+                                    <p className="cities__status-description">
+                                        We could not find any property available at the moment in {selectedCity?.name}
+                                    </p>
+                                </div>
+                            </section>
+                            <div className="cities__right-section"></div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );
